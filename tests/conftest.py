@@ -221,7 +221,7 @@ def applet():
     # Load the applet
     backend = JRCPBackend()
     backend.connect()
-    configure_nxp_sim(None, ENC_KEY, MAC_KEY, DEK_KEY, "", backend)
+    configure_nxp_sim(None, ENC_KEY, MAC_KEY, DEK_KEY, "", backend, "A000000151000000")
     sender = GPCommandSender(backend, ENC_KEY, MAC_KEY)
     manager = CardManager(sender)
     loader = AppletLoader(sender, manager)
