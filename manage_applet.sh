@@ -49,7 +49,7 @@ update_vars() {
 export JAVA_HOME
 update_vars
 
-DOCKER_IMAGE="containers.git.orange.ledgerlabs.net/embedded-software/applet-builder:latest"
+DOCKER_IMAGE="jfrog.ledgerlabs.net/embedded-apps-oci-sandbox-green/ledger-applet-builder:latest"
 CONTAINER_NAME="applet-builder"
 
 # Function to clean build artifacts

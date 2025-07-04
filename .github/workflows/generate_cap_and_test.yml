@@ -11,14 +11,14 @@ on:
 
 jobs:
   generate-and-test:
-    runs-on: ubuntu-22.04
+    runs-on: public-ledgerhq-shared-small
     name: Generate CAP and run tests
 
     container:
-      image: docker.io/alexisgrojean/applet-builder:latest
+      image: jfrog.ledgerlabs.net/embedded-apps-oci-sandbox-green/ledger-applet-builder:latest
       credentials:
-        username: ${{ secrets.DOCKER_USER }}
-        password: ${{ secrets.DOCKER_TOKEN }}
+        username: ${{ secrets.JFROG_USER }}
+        password: ${{ secrets.JFROG_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -28,12 +28,11 @@ jobs:
         run: |
             ./manage_applet.sh -p "/home/devuser" -v 1.0
             ./manage_applet.sh -p "/home/devuser" -v 1.1 -o upgrade
-    
-      - name: Setup PDM
-        uses: pdm-project/setup-pdm@v4
 
       - name: Setup tests environment
         run: |
+            curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+            export PATH=/github/home/.local/bin:$PATH
             export GH_USER=${{ secrets.GH_USER }}
             export GH_TOKEN=${{ secrets.GH_TOKEN }}
             pdm lock -G github-actions

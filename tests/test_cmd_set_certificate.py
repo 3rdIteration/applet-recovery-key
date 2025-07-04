@@ -7,6 +7,7 @@ from ledger_pluto.applet_loader import AppletLoader
 from ledger_pluto.card_manager import CardManager
 from ledger_pluto.backend.jrcp_backend import JRCPBackend
 from ledger_pluto.ledger_pluto import configure_nxp_sim
+from ledger_pluto.gp.definitions import ISD_AID
 from .conftest import (
     TEST_ISSUER_PRIV_KEY,
     TEST_AUTH_PRIV_KEY,
@@ -27,7 +28,7 @@ logger = logging.getLogger(__name__)
 def install_applet():
     backend = JRCPBackend()
     backend.connect()
-    configure_nxp_sim(None, ENC_KEY, MAC_KEY, DEK_KEY, "", backend)
+    configure_nxp_sim(None, ENC_KEY, MAC_KEY, DEK_KEY, "", backend, ISD_AID)
     sender = GPCommandSender(backend, ENC_KEY, MAC_KEY)
     manager = CardManager(sender)
     loader = AppletLoader(sender, manager)
