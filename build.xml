@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="applet-recovery-key" default="cap" basedir=".">
+
+    <!-- Paths -->
+    <property name="src.dir" location="src"/>
+    <property name="classes.dir" location="bin"/>
+    <property name="dist.dir" location="deliverables/applet-recovery-key"/>
+    <property name="deps.dir" location="deps"/>
+    <property name="sdk.dir" location="sdks/java_card_devkit"/>
+
+    <!-- Java Card libraries -->
+    <property name="jcapi.jar" location="${sdk.dir}/lib/api_classic-3.0.5.jar"/>
+    <property name="ant-javacard.jar" location="${sdk.dir}/lib/ant-javacard.jar"/>
+
+    <!-- External libraries -->
+    <property name="gpapi.jar" location="${deps.dir}/gpapi-globalplatform.jar"/>
+    <property name="upgrade.jar" location="${deps.dir}/gpapi-upgrade.jar"/>
+    <property name="export.dir" location="${deps.dir}/exports23"/>
+
+    <!-- Applet information -->
+    <property name="package.name" value="com.ledger.appletrecoverykey"/>
+    <property name="package.aid" value="A0000000624C4544474552303100"/>
+    <property name="applet.class" value="com.ledger.appletrecoverykey.AppletRecoveryKey"/>
+    <property name="applet.aid" value="A0000000624C45444745523031"/>
+    <property name="applet.version" value="1.0"/>
+
+    <path id="compile.classpath">
+        <pathelement location="${gpapi.jar}"/>
+        <pathelement location="${upgrade.jar}"/>
+    </path>
+
+    <taskdef uri="antlib:com.sun.javacard.ant" resource="com/sun/javacard/ant/antlib.xml" classpath="${ant-javacard.jar}"/>
+
+    <!-- Clean previous builds -->
+    <target name="clean">
+        <delete dir="${classes.dir}"/>
+        <delete dir="${dist.dir}"/>
+    </target>
+
+    <!-- Compile Java sources -->
+    <target name="compile">
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${src.dir}" destdir="${classes.dir}"
+               bootclasspath="${jcapi.jar}"
+               classpathref="compile.classpath"
+               source="1.8" target="1.8" includeantruntime="false"/>
+    </target>
+
+    <!-- Create CAP file -->
+    <target name="cap" depends="compile">
+        <mkdir dir="${dist.dir}"/>
+        <javacard>
+            <cap jckit="${sdk.dir}"
+                 aid="${package.aid}"
+                 version="${applet.version}"
+                 package="${package.name}"
+                 outputdir="${dist.dir}">
+                <applet class="${applet.class}" aid="${applet.aid}"/>
+                <class dir="${classes.dir}"/>
+                <exportpath path="${export.dir}"/>
+            </cap>
+        </javacard>
+    </target>
+
+</project>
