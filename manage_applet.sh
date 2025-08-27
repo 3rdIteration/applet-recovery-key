@@ -128,7 +128,8 @@ check_dependencies() {
             red "Error: Failed to download JavaCard DevKit"
             exit 1
         fi
-        if ! unzip /tmp/java_card_devkit.zip -d $DEPS_PATH; then
+        mkdir -p "$JCDK_PATH"
+        if ! unzip /tmp/java_card_devkit.zip -d "$JCDK_PATH"; then
             red "Error: Failed to extract JavaCard DevKit"
             rm /tmp/java_card_devkit.zip
             exit 1
