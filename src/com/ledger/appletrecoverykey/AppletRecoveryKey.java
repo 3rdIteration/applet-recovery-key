@@ -46,9 +46,6 @@ import static com.ledger.appletrecoverykey.Constants.UPGRADE_AUTHORIZATION_GRANT
 import org.globalplatform.Application;
 import org.globalplatform.GPSystem;
 import org.globalplatform.SecureChannel;
-import org.globalplatform.upgrade.Element;
-import org.globalplatform.upgrade.OnUpgradeListener;
-import org.globalplatform.upgrade.UpgradeManager;
 
 import javacard.framework.APDU;
 import javacard.framework.Applet;
@@ -66,7 +63,7 @@ import javacard.security.KeyBuilder;
  * @author <user>
  */
 
-public class AppletRecoveryKey extends Applet implements OnUpgradeListener, Application {
+public class AppletRecoveryKey extends Applet implements Application {
     // Hardware wallet info
     protected byte[] hwSerialNumber;
 
@@ -116,69 +113,6 @@ public class AppletRecoveryKey extends Applet implements OnUpgradeListener, Appl
     private CommandProcessor commandProcessor;
 
     private FatalError fatalError;
-
-    @Override
-    public Element onSave() {
-        // If the Lifecycle FSM state is "user personalized" (PIN and seed set) but the
-        // upgrade authorization is not granted then the applet cannot be upgraded
-        if (lifeCycleFSM.getCurrentState() == LifeCycleStateMachine.STATE_USER_PERSONALIZED
-                && upgradeAuthorizationState[0] != UPGRADE_AUTHORIZATION_GRANTED) {
-            ISOException.throwIt(ISO7816.SW_SECURITY_STATUS_NOT_SATISFIED);
-            return null;
-        } else {
-            return UpgradeManager.createElement(Element.TYPE_SIMPLE, (short) 1, (short) 7).write(serialNumber)
-                    .write(PINManager.save(this.pinManager)).write(SeedManager.save(this.seedManager)).write(certificatePrivateKey)
-                    .write(certificatePublicKey).write(CertificatePKI.save(this.cardCertificatePKI)).write(this.cardNameLength)
-                    .write(this.cardName);
-        }
-    }
-
-    @Override
-    public void onCleanup() {
-        // Nothing to do
-    }
-
-    @Override
-    public void onRestore(Element root) {
-        if (root == null) {
-            return;
-        }
-        root.initRead();
-        if (root.canReadObject() == (short) 7) {
-            serialNumber = (byte[]) root.readObject();
-            PINManager pinManager = PINManager.restore((Element) root.readObject());
-            if (pinManager != null) {
-                this.pinManager = pinManager;
-            }
-            SeedManager seedManager = SeedManager.restore((Element) root.readObject());
-            if (seedManager != null) {
-                this.seedManager = seedManager;
-            }
-            certificatePrivateKey = (ECPrivateKey) root.readObject();
-            certificatePublicKey = (ECPublicKey) root.readObject();
-            CertificatePKI cardCertificatePKI = CertificatePKI.restore((Element) root.readObject());
-            if (cardCertificatePKI != null) {
-                this.cardCertificatePKI = cardCertificatePKI;
-            }
-            this.cardNameLength = (byte) root.readByte();
-            this.cardName = (byte[]) root.readObject();
-        }
-    }
-
-    @Override
-    public void onConsolidate() {
-        seedManager.setCryptoUtil(crypto);
-
-        if (cardCertificatePKI.isCertificateSet()) {
-            lifeCycleFSM.transition(LifeCycleStateMachine.EVENT_SET_CERTIFICATE);
-            lifeCycleFSM.transition(LifeCycleStateMachine.EVENT_FACTORY_TESTS_PASSED);
-        }
-        if (seedManager.isSeedSet() && pinManager.getPINStatus() == PINManager.PIN_STATUS_ACTIVATED) {
-            lifeCycleFSM.transition(LifeCycleStateMachine.EVENT_SET_SEED);
-        }
-        transientFSM.setOnSelectState();
-        this.enableFatalErrorHandling();
-    }
 
     /**
      * Selects the applet. Initializes the transient state machine (in locked
@@ -253,14 +187,13 @@ public class AppletRecoveryKey extends Applet implements OnUpgradeListener, Appl
         fatalError = new FatalError(this);
         serialNumber = new byte[SN_LENGTH];
 
-        if (UpgradeManager.isUpgrading() == false) {
-            certificatePrivateKey = (ECPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PRIVATE, crypto.getCurve().getCurveLength(),
-                    false);
-            certificatePublicKey = (ECPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PUBLIC, crypto.getCurve().getCurveLength(),
-                    false);
-            // Initialize the fatal error handler
-            enableFatalErrorHandling();
-        }
+        certificatePrivateKey = (ECPrivateKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PRIVATE, crypto.getCurve().getCurveLength(),
+                false);
+        certificatePublicKey = (ECPublicKey) KeyBuilder.buildKey(KeyBuilder.TYPE_EC_FP_PUBLIC, crypto.getCurve().getCurveLength(),
+                false);
+        // Initialize the fatal error handler
+        enableFatalErrorHandling();
+
         register(bArray, ((short) (bOffset + 1)), bArray[bOffset]);
     }
 
