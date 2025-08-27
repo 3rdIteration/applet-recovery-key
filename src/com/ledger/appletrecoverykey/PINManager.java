@@ -8,8 +8,6 @@ package com.ledger.appletrecoverykey;
 import static com.ledger.appletrecoverykey.Constants.SW_FATAL_ERROR_DURING_INIT;
 import static com.ledger.appletrecoverykey.Constants.SW_INCORRECT_PARAMETERS;
 
-import org.globalplatform.upgrade.Element;
-import org.globalplatform.upgrade.UpgradeManager;
 
 import javacard.framework.ISO7816;
 import javacard.framework.ISOException;
@@ -159,20 +157,4 @@ public class PINManager {
         return pinStatus;
     }
 
-    static Element save(PINManager pinManager) {
-        if (pinManager == null || pinManager.getPINStatus() != PIN_STATUS_ACTIVATED) {
-            return null;
-        }
-        return UpgradeManager.createElement(Element.TYPE_SIMPLE, (short) 2, (short) 1).write(pinManager.pinStatus).write(pinManager.pin);
-    }
-
-    static PINManager restore(Element element) {
-        if (element == null) {
-            return null;
-        }
-        PINManager pinManager = new PINManager();
-        pinManager.pinStatus = element.readShort();
-        pinManager.pin = (OwnerPIN) element.readObject();
-        return pinManager;
-    }
 }

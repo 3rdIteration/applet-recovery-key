@@ -8,8 +8,6 @@ package com.ledger.appletrecoverykey;
 import static com.ledger.appletrecoverykey.Constants.SW_FATAL_ERROR_DURING_INIT;
 import static com.ledger.appletrecoverykey.Constants.SW_WRONG_LENGTH;
 
-import org.globalplatform.upgrade.Element;
-import org.globalplatform.upgrade.UpgradeManager;
 
 import javacard.framework.ISO7816;
 import javacard.framework.ISOException;
@@ -285,20 +283,4 @@ public class SeedManager {
         return signatureLength;
     }
 
-    static Element save(SeedManager seedManager) {
-        return UpgradeManager.createElement(Element.TYPE_SIMPLE, (short) 2, (short) 2).write(seedManager.seedSet)
-                .write(seedManager.seedCheckCMAC128).write(seedManager.seedKey).write(seedManager.seedLength);
-    }
-
-    static SeedManager restore(Element element) {
-        if (element == null) {
-            return null;
-        }
-        SeedManager seedManager = new SeedManager();
-        seedManager.seedSet = element.readBoolean();
-        seedManager.seedCheckCMAC128 = (byte[]) element.readObject();
-        seedManager.seedKey = (AESKey) element.readObject();
-        seedManager.seedLength = (byte) element.readByte();
-        return seedManager;
-    }
 }

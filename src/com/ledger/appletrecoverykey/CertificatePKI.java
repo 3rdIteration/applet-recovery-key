@@ -11,8 +11,6 @@ import static com.ledger.appletrecoverykey.Constants.SW_SECURITY_STATUS;
 import static com.ledger.appletrecoverykey.Constants.SW_WRONG_LENGTH;
 import static com.ledger.appletrecoverykey.Utils.parseTLVGetOffset;
 
-import org.globalplatform.upgrade.Element;
-import org.globalplatform.upgrade.UpgradeManager;
 
 import javacard.framework.ISOException;
 import javacard.framework.Util;
@@ -131,36 +129,4 @@ public class CertificatePKI {
         return (this.rawCertificateLength != 0);
     }
 
-    /**
-     * Saves Certificate instance during upgrade
-     * 
-     * @param[in] certificate Certificate instance to save
-     * @return Upgrade Element
-     */
-    static Element save(CertificatePKI certificate) {
-        if (certificate == null) {
-            return null;
-        }
-        short primitiveCount = 2; // rawCertificateLength,
-        short objectCount = 2; // rawCertificate, issuerPublicKey
-        return UpgradeManager.createElement(Element.TYPE_SIMPLE, primitiveCount, objectCount).write(certificate.rawCertificateLength)
-                .write(certificate.rawCertificate).write(certificate.issuerPublicKey);
-    }
-
-    /**
-     * Restores an upgrade Element into a Certificate instance
-     * 
-     * @param[in] element Upgrade Element to restore
-     * @return Certificate instance
-     */
-    static CertificatePKI restore(Element element) {
-        if (element == null) {
-            return null;
-        }
-        CertificatePKI cert = new CertificatePKI();
-        cert.rawCertificateLength = element.readShort();
-        cert.rawCertificate = (byte[]) element.readObject();
-        cert.issuerPublicKey = (ECPublicKey) element.readObject();
-        return cert;
-    }
 }

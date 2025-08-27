@@ -14,7 +14,6 @@
 
     <!-- External libraries -->
     <property name="gpapi.jar" location="${deps.dir}/gpapi-globalplatform.jar"/>
-    <property name="upgrade.jar" location="${deps.dir}/gpapi-upgrade.jar"/>
     <property name="export.dir" location="${deps.dir}/exports23"/>
 
     <!-- Applet information -->
@@ -26,7 +25,6 @@
 
     <path id="compile.classpath">
         <pathelement location="${gpapi.jar}"/>
-        <pathelement location="${upgrade.jar}"/>
     </path>
 
     <taskdef uri="antlib:com.sun.javacard.ant" resource="com/sun/javacard/ant/antlib.xml" classpath="${ant-javacard.jar}"/>
